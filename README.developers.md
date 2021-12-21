@@ -923,6 +923,65 @@ This describes adding a test to `vtr_reg_strong`, but the process is similar for
     $ git commit
     ```
 
+## Adding Unit Tests
+This describes the necessary steps to create unit tests.
+
+VTR uses [Catch2](https://github.com/catchorg/Catch2) as its unit testing
+framework.
+
+Suppose a given project has the following directory structure:
+```
+example_project
+|
+|   CMakeLists.txt
+└───src
+│   │   example_file_1.h
+│   │   example_file_1.cpp
+|   |   example_file_2.h
+|   |   example_file_2.cpp
+|   |   example_file_3.h
+|   |   example_file_3.cpp
+|   |   ...
+└───folder_1
+|   |   ...
+└───folder_2
+|   |   ...
+└───...
+```
+Now, taking the above project, to add a new unit test for a function in 'example_file_1.cpp' the following steps need to be performed:
+
+1. Create a folder within the project called 'test' (if it did not already exist). This folder will contain all unit tests relevant to the project. The project directory should look as follows:
+```
+example_project
+|
+|   CMakeLists.txt
+└───src
+│   │   example_file_1.h
+│   │   example_file_1.cpp
+|   |   example_file_2.h
+|   |   example_file_2.cpp
+|   |   example_file_3.h
+|   |   example_file_3.cpp
+|   |   ...
+└───test
+└───folder_1
+|   |   ...
+└───folder_2
+|   |   ...
+└───...
+```
+2. Modify the projects 'CMakeLists.txt' file to include the following lines:
+```
+file(GLOB_RECURSE TEST_SOURCES test/*.cpp)
+add_executable(<unit_testing_program_name> ${TEST_SOURCES})
+target_link_libraries(<unit_testing_program_name>
+                        Catch2::Catch2WithMain
+                        <additional required libraries>)
+
+```
+The 
+
+
 # Debugging Aids
 VTR has support for several additional tools/features to aid debugging.
 
