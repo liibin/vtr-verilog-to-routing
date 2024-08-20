@@ -1,0 +1,31 @@
+name: Visual Studio Build
+
+on: [push, pull_request]
+
+jobs:
+  vtr-vcxsrc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: make vcxsrc VTR_VER=latest
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vcxsrc
+          path: vtr-win32-vcxsrc-latest.zip
+  
+  build:
+    runs-on: windows-2019
+    needs: vtr-vcxsrc
+    steps:  
+      - uses: actions/download-artifact@v4
+        with:
+          name: vcxsrc
+          path: .
+      - name: unzip
+        run: unzip vtr-win32-vcxsrc-latest.zip
+      - name: setup-msbuild
+        uses: microsoft/setup-msbuild@v1
+      - name: MSBuild
+        working-directory: vtr-win32-vcxsrc-latest
+        run: msbuild vtrVS.sln /p:PlatformToolset=v142 /p:Configuration=Release /p:WindowsTargetPlatformVersion=10.0.17763.0
