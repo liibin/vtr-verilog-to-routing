@@ -532,9 +532,9 @@ struct ParseFixPins {
     ConvertedValue<e_pad_loc_type> from_str(const std::string& str) {
         ConvertedValue<e_pad_loc_type> conv_value;
         if (str == "free")
-            conv_value.set_value(FREE);
+            conv_value.set_value(e_pad_loc_type::FREE);
         else if (str == "random")
-            conv_value.set_value(RANDOM);
+            conv_value.set_value(e_pad_loc_type::RANDOM);
         else {
             std::stringstream msg;
             msg << "Invalid conversion from '" << str << "' to e_router_algorithm (expected one of: " << argparse::join(default_choices(), ", ") << ")";
@@ -545,10 +545,10 @@ struct ParseFixPins {
 
     ConvertedValue<std::string> to_str(e_pad_loc_type val) {
         ConvertedValue<std::string> conv_value;
-        if (val == FREE)
+        if (val == e_pad_loc_type::FREE)
             conv_value.set_value("free");
         else {
-            VTR_ASSERT(val == RANDOM);
+            VTR_ASSERT(val == e_pad_loc_type::RANDOM);
             conv_value.set_value("random");
         }
         return conv_value;
@@ -1321,6 +1321,11 @@ argparse::ArgumentParser create_arg_parser(const std::string& prog_name, t_optio
 
     stage_grp.add_argument<bool, ParseOnOff>(args.do_placement, "--place")
         .help("Run placement")
+        .action(argparse::Action::STORE_TRUE)
+        .default_value("off");
+
+    stage_grp.add_argument<bool, ParseOnOff>(args.do_analytical_placement, "--analytical_place")
+        .help("Run analytical placement. Analytical Placement uses an integrated packing and placement algorithm, using information from the primitive level to improve clustering and placement.")
         .action(argparse::Action::STORE_TRUE)
         .default_value("off");
 
@@ -2495,6 +2500,18 @@ argparse::ArgumentParser create_arg_parser(const std::string& prog_name, t_optio
         .default_value("false")
         .show_in(argparse::ShowIn::HELP_ONLY);
 
+
+    route_grp.add_argument<int>(args.route_verbosity, "--route_verbosity")
+        .help("Controls the verbosity of routing's output. Higher values produce more output (useful for debugging routing problems)")
+        .default_value("1")
+        .show_in(argparse::ShowIn::HELP_ONLY);
+    route_grp.add_argument(args.custom_3d_sb_fanin_fanout, "--custom_3d_sb_fanin_fanout")
+            .help(
+                    "Specifies the number of tracks that can drive a 3D switch block connection"
+                    "and the number of tracks that can be driven by a 3D switch block connection")
+            .default_value("1")
+            .show_in(argparse::ShowIn::HELP_ONLY);
+
     auto& route_timing_grp = parser.add_argument_group("timing-driven routing options");
 
     route_timing_grp.add_argument(args.astar_fac, "--astar_fac")
@@ -2674,7 +2691,7 @@ argparse::ArgumentParser create_arg_parser(const std::string& prog_name, t_optio
         .show_in(argparse::ShowIn::HELP_ONLY);
 
     route_timing_grp.add_argument(args.router_first_iteration_timing_report_file, "--router_first_iter_timing_report")
-        .help("Name of the post first routing iteration timing report file (not generated if unspecfied)")
+        .help("Name of the post first routing iteration timing report file (not generated if unspecified)")
         .default_value("")
         .show_in(argparse::ShowIn::HELP_ONLY);
 

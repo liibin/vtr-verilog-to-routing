@@ -48449,7 +48449,7 @@
     </switchblock>
   </switchblocklist>
   <!-- The NoC routers were added to the FPGA device in the fixed layout section-->
-  <noc link_bandwidth="1e6" router_latency="1e-9" link_latency="1e-9" noc_router_tile_name="noc_router_adapter">
+  <noc link_bandwidth="1.28e11" router_latency="1e-9" link_latency="1e-9" noc_router_tile_name="noc_router_adapter">
 	  <mesh startx="0" starty="0" endx="340" endy="270" size="4"/>
   </noc>
 </architecture>

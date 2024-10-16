@@ -1,7 +1,11 @@
 #ifndef VPR_MOVE_TRANSACTIONS_H
 #define VPR_MOVE_TRANSACTIONS_H
+
 #include "vpr_types.h"
 #include "clustered_netlist_utils.h"
+
+class BlkLocRegistry;
+class GridBlock;
 
 enum class e_block_move_result {
     VALID,       //Move successful
@@ -30,7 +34,7 @@ struct t_pl_moved_block {
  * placement.                                                   *
  * Store the information on the blocks to be moved in a swap during     *
  * placement, in the form of array of structs instead of struct with    *
- * arrays for cache effifiency                                          *
+ * arrays for cache efficiency                                          *
  *
  * moved blocks: a list of moved blocks data structure with     *
  *               information on the move.                       *
@@ -44,18 +48,30 @@ struct t_pl_blocks_to_be_moved {
     t_pl_blocks_to_be_moved(const t_pl_blocks_to_be_moved&) = delete;
     t_pl_blocks_to_be_moved(t_pl_blocks_to_be_moved&&) = delete;
 
-/**
- * @brief This function increments the size of the moved_blocks vector and return the index
- * of the newly added last elements. 
- */
+    /**
+    * @brief This function increments the size of the moved_blocks vector and return the index
+    * of the newly added last elements.
+    */
     size_t get_size_and_increment();
 
-/**
- * @brief This function clears all data structures of this struct.
- */
+    /**
+    * @brief This function clears all data structures of this struct.
+    */
     void clear_move_blocks();
 
-    e_block_move_result record_block_move(ClusterBlockId blk, t_pl_loc to);
+    /**
+     * @brief Determines if the given net is driven by at least of the
+     * moved blocks.
+     *
+     * @param net The unique identifier of the net of interest.
+     * @return True if the driver block of the net is among the moving blocks.
+     */
+    bool driven_by_moved_block(const ClusterNetId net) const;
+
+
+    e_block_move_result record_block_move(ClusterBlockId blk,
+                                          t_pl_loc to,
+                                          const BlkLocRegistry& blk_loc_registry);
     
     std::set<t_pl_loc> determine_locations_emptied_by_move();
 
@@ -65,12 +81,5 @@ struct t_pl_blocks_to_be_moved {
 
     std::vector<ClusterPinId> affected_pins;
 };
-
-
-void apply_move_blocks(const t_pl_blocks_to_be_moved& blocks_affected);
-
-void commit_move_blocks(const t_pl_blocks_to_be_moved& blocks_affected);
-
-void revert_move_blocks(const t_pl_blocks_to_be_moved& blocks_affected);
 
 #endif
